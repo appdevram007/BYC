@@ -5,8 +5,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Enable shutdown hooks for graceful shutdown
+  app.enableShutdownHooks();
+
   // Enable CORS for frontend communication
-app.enableCors({
+  app.enableCors({
     origin: [
       'http://localhost:5173',
       'https://byc-1.onrender.com',
@@ -23,11 +26,15 @@ app.enableCors({
     })
   );
 
+  // Set global prefix for API routes (optional but recommended)
+  app.setGlobalPrefix('api');
+
   const port = process.env.PORT || 3000;
   await app.listen(port);
   
   console.log(`🚀 Backend server is running on: http://localhost:${port}`);
-  console.log(`📊 API endpoint: http://localhost:${port}/api/bond/calculate`);
+  console.log(`📊 Health check: http://localhost:${port}/health`);
+  console.log(`📊 Bond calculator API: http://localhost:${port}/api/bond/calculate`);
 }
 
 bootstrap();

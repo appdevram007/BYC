@@ -68,7 +68,6 @@ function App() {
 
       <footer style={footerStyle}>
         <p>
-          
           Calculations use Newton-Raphson method for YTM approximation
         </p>
       </footer>
