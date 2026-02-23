@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { BondInput, CouponFrequency } from '../types/bond.types';
+import { BondInput } from '../types/bond.types';
 import { validateBondInput } from '../utils/validation';
 import styles from './BondInputForm.module.css';
 
