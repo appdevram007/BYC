@@ -6,11 +6,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS for frontend communication
-  app.enableCors({
-    origin: 'http://localhost:5173', // Vite default port
+app.enableCors({
+    origin: [
+      'http://localhost:5173',
+      'https://byc-1.onrender.com',
+    ],
     credentials: true,
   });
-
+  
   // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
