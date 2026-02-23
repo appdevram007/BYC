@@ -20,15 +20,16 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
+  // Keep value as string while typing to allow -0.09 etc.
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'couponFrequency' ? value : parseFloat(value) || 0,
+      [name]: name === 'couponFrequency' ? value : value, // keep raw string
     }));
 
-    // Clear error for this field when user starts typing
+    // Clear error while typing
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -41,11 +42,21 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
   const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
     const { name } = e.target;
     setTouched(prev => ({ ...prev, [name]: true }));
-    
-    // Validate single field
-    const validationErrors = validateBondInput(formData);
+
+    const numericValue = parseFloat(formData[name] as string);
+
+    // Custom validation for faceValue
+    if (name === 'faceValue' && (!numericValue || numericValue <= 0)) {
+      setErrors(prev => ({ ...prev, faceValue: 'Face Value must be greater than 0' }));
+      return;
+    }
+
+    // Validate other fields
+    const validationErrors = validateBondInput({
+      ...formData,
+      [name]: numericValue,
+    });
     const fieldError = validationErrors.find(err => err.field === name);
-    
     if (fieldError) {
       setErrors(prev => ({ ...prev, [name]: fieldError.message }));
     }
@@ -53,23 +64,33 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    
-    // Mark all fields as touched
+
     const allFields = ['faceValue', 'couponRate', 'marketPrice', 'yearsToMaturity', 'couponFrequency'];
     setTouched(Object.fromEntries(allFields.map(field => [field, true])));
-    
-    // Validate all fields
-    const validationErrors = validateBondInput(formData);
-    
+
+    // Convert numeric fields before validating
+    const preparedData = {
+      ...formData,
+      faceValue: parseFloat(formData.faceValue as string),
+      couponRate: parseFloat(formData.couponRate as string),
+      marketPrice: parseFloat(formData.marketPrice as string),
+      yearsToMaturity: parseFloat(formData.yearsToMaturity as string),
+    };
+
+    const validationErrors = validateBondInput(preparedData);
+
+    // Ensure Face Value > 0
+    if (!preparedData.faceValue || preparedData.faceValue <= 0) {
+      validationErrors.push({ field: 'faceValue', message: 'Face Value must be greater than 0' });
+    }
+
     if (validationErrors.length > 0) {
-      const errorMap = Object.fromEntries(
-        validationErrors.map(err => [err.field, err.message])
-      );
+      const errorMap = Object.fromEntries(validationErrors.map(err => [err.field, err.message]));
       setErrors(errorMap);
       return;
     }
-    
-    onSubmit(formData as BondInput);
+
+    onSubmit(preparedData as BondInput);
   };
 
   return (
@@ -80,22 +101,24 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
       </div>
 
       <div className={styles.formGrid}>
+        {/* Face Value */}
         <div className={styles.formGroup}>
           <label htmlFor="faceValue" className={styles.label}>
-            Face Value
-            <span className={styles.required}>*</span>
+            Face Value <span className={styles.required}>*</span>
           </label>
           <div className={styles.inputWrapper}>
-            <span className={styles.inputPrefix}>$</span>
+            <span className={styles.inputPrefix}>AED</span>
             <input
               type="number"
               id="faceValue"
               name="faceValue"
-              value={formData.faceValue || ''}
+              value={formData.faceValue}
               onChange={handleChange}
               onBlur={handleBlur}
               className={`${styles.input} ${errors.faceValue && touched.faceValue ? styles.inputError : ''}`}
               step="0.01"
+              min={0.01}
+
               placeholder="1000.00"
             />
           </div>
@@ -104,17 +127,17 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
           )}
         </div>
 
+        {/* Coupon Rate */}
         <div className={styles.formGroup}>
           <label htmlFor="couponRate" className={styles.label}>
-            Annual Coupon Rate
-            <span className={styles.required}>*</span>
+            Annual Coupon Rate <span className={styles.required}>*</span>
           </label>
           <div className={styles.inputWrapper}>
             <input
               type="number"
               id="couponRate"
               name="couponRate"
-              value={formData.couponRate || ''}
+              value={formData.couponRate}
               onChange={handleChange}
               onBlur={handleBlur}
               className={`${styles.input} ${errors.couponRate && touched.couponRate ? styles.inputError : ''}`}
@@ -128,18 +151,18 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
           )}
         </div>
 
+        {/* Market Price */}
         <div className={styles.formGroup}>
           <label htmlFor="marketPrice" className={styles.label}>
-            Market Price
-            <span className={styles.required}>*</span>
+            Market Price <span className={styles.required}>*</span>
           </label>
           <div className={styles.inputWrapper}>
-            <span className={styles.inputPrefix}>$</span>
+            <span className={styles.inputPrefix}>AED</span>
             <input
               type="number"
               id="marketPrice"
               name="marketPrice"
-              value={formData.marketPrice || ''}
+              value={formData.marketPrice}
               onChange={handleChange}
               onBlur={handleBlur}
               className={`${styles.input} ${errors.marketPrice && touched.marketPrice ? styles.inputError : ''}`}
@@ -152,16 +175,16 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
           )}
         </div>
 
+        {/* Years to Maturity */}
         <div className={styles.formGroup}>
           <label htmlFor="yearsToMaturity" className={styles.label}>
-            Years to Maturity
-            <span className={styles.required}>*</span>
+            Years to Maturity <span className={styles.required}>*</span>
           </label>
           <input
             type="number"
             id="yearsToMaturity"
             name="yearsToMaturity"
-            value={formData.yearsToMaturity || ''}
+            value={formData.yearsToMaturity}
             onChange={handleChange}
             onBlur={handleBlur}
             className={`${styles.input} ${errors.yearsToMaturity && touched.yearsToMaturity ? styles.inputError : ''}`}
@@ -173,15 +196,15 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
           )}
         </div>
 
+        {/* Coupon Frequency */}
         <div className={styles.formGroup}>
           <label htmlFor="couponFrequency" className={styles.label}>
-            Coupon Frequency
-            <span className={styles.required}>*</span>
+            Coupon Frequency <span className={styles.required}>*</span>
           </label>
           <select
             id="couponFrequency"
             name="couponFrequency"
-            value={formData.couponFrequency || ''}
+            value={formData.couponFrequency}
             onChange={handleChange}
             className={styles.select}
           >
@@ -191,15 +214,10 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
         </div>
       </div>
 
-      <button 
-        type="submit" 
-        className={styles.submitButton}
-        disabled={loading}
-      >
+      <button type="submit" className={styles.submitButton} disabled={loading}>
         {loading ? (
           <>
-            <span className={styles.spinner}></span>
-            Calculating...
+            <span className={styles.spinner}></span> Calculating...
           </>
         ) : (
           'Calculate Yields'

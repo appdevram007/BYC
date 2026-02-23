@@ -53,7 +53,7 @@ export const validateBondInput = (input: Partial<BondInput>): ValidationError[] 
 export const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'AED',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);

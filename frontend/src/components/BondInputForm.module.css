@@ -22,11 +22,13 @@
   font-size: 0.95rem;
 }
 
+/* ---------- UPDATED GRID (ONE LINE LAYOUT) ---------- */
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr 1fr; /* 5 inputs */
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
+  align-items: end;
 }
 
 .formGroup {
@@ -53,11 +55,12 @@
   align-items: center;
 }
 
+/* -------- INPUTS -------- */
 .input,
 .select {
   width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
   font-family: var(--font-body);
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -67,11 +70,11 @@
 }
 
 .inputWrapper .input {
-  padding-left: 2.5rem;
+  padding-left: 2.3rem;
 }
 
 .inputWrapper .input:has(+ .inputSuffix) {
-  padding-right: 2.5rem;
+  padding-right: 2.3rem;
 }
 
 .input:focus,
@@ -92,40 +95,48 @@
   color: var(--color-text-muted);
   font-weight: 500;
   pointer-events: none;
+  font-size: 0.85rem;
 }
 
 .inputPrefix {
-  left: 1rem;
+  left: 0.75rem;
 }
 
 .inputSuffix {
-  right: 1rem;
+  right: 0.75rem;
 }
 
+/* -------- SELECT -------- */
 .select {
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%234a4a4a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 1rem center;
-  padding-right: 3rem;
+  background-position: right 0.75rem center;
+  padding-right: 2.2rem;
 }
 
+/* -------- ERRORS -------- */
 .errorMessage {
   color: var(--color-error);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   margin-top: calc(-1 * var(--spacing-xs));
   animation: slideIn 0.2s ease;
 }
 
+/* -------- BUTTON -------- */
 .submitButton {
   width: 100%;
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
+  padding: 0.85rem 1.2rem;
+  font-size: 0.95rem;
   font-weight: 600;
   font-family: var(--font-body);
   color: var(--color-bg-tertiary);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-light) 100%
+  );
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -138,14 +149,12 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-lg);
-  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
 }
 
 .submitButton:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: var(--shadow-sm);
 }
 
 .submitButton:disabled {
@@ -153,9 +162,10 @@
   cursor: not-allowed;
 }
 
+/* -------- SPINNER -------- */
 .spinner {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
@@ -168,11 +178,28 @@
   }
 }
 
-/* Responsive Design */
+/* -------- ANIMATIONS -------- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------- RESPONSIVE -------- */
+@media (max-width: 1100px) {
+  .formGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .form {
     padding: var(--spacing-lg);
-    border-radius: var(--radius-md);
   }
 
   .formGrid {
@@ -181,26 +208,16 @@
   }
 
   .formHeader h2 {
-    font-size: 1.5rem;
-  }
-
-  .formSubtitle {
-    font-size: 0.9rem;
+    font-size: 1.4rem;
   }
 
   .input,
   .select {
-    font-size: 16px; /* Prevents zoom on iOS */
-    padding: 0.875rem 1rem;
-  }
-
-  .inputWrapper .input {
-    padding-left: 2.5rem;
+    font-size: 16px; /* prevent zoom on iOS */
   }
 
   .submitButton {
-    font-size: 1rem;
-    padding: 0.875rem 1.5rem;
+    width: 100%;
   }
 }
 
@@ -209,41 +226,7 @@
     padding: var(--spacing-md);
   }
 
-  .formHeader {
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .formHeader h2 {
-    font-size: 1.375rem;
-  }
-
-  .formGrid {
-    gap: var(--spacing-sm);
-  }
-
   .label {
     font-size: 0.85rem;
-  }
-
-  .input,
-  .select {
-    padding: 0.75rem 0.875rem;
-  }
-
-  .inputWrapper .input {
-    padding-left: 2.25rem;
-  }
-
-  .inputPrefix {
-    left: 0.875rem;
-  }
-
-  .inputSuffix {
-    right: 0.875rem;
-  }
-
-  .submitButton {
-    font-size: 0.95rem;
-    padding: 0.75rem 1.25rem;
   }
 }
