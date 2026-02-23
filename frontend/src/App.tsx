@@ -68,7 +68,7 @@ function App() {
 
       <footer style={footerStyle}>
         <p>
-          Built with React, NestJS, and TypeScript • 
+          
           Calculations use Newton-Raphson method for YTM approximation
         </p>
       </footer>

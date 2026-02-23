@@ -39,28 +39,29 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
     }
   };
 
-  const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
+const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
+  const { name } = e.target;
+  setTouched(prev => ({ ...prev, [name]: true }));
 
-    const numericValue = parseFloat(formData[name] as string);
+  const key = name as keyof BondInput;
+  const numericValue = parseFloat(String(formData[key] ?? 0));
 
-    // Custom validation for faceValue
-    if (name === 'faceValue' && (!numericValue || numericValue <= 0)) {
-      setErrors(prev => ({ ...prev, faceValue: 'Face Value must be greater than 0' }));
-      return;
-    }
+  // Custom validation for Face Value
+  if (key === 'faceValue' && numericValue <= 0) {
+    setErrors(prev => ({ ...prev, faceValue: 'Face Value must be greater than 0' }));
+    return;
+  }
 
-    // Validate other fields
-    const validationErrors = validateBondInput({
-      ...formData,
-      [name]: numericValue,
-    });
-    const fieldError = validationErrors.find(err => err.field === name);
-    if (fieldError) {
-      setErrors(prev => ({ ...prev, [name]: fieldError.message }));
-    }
-  };
+  // Validate other fields
+  const validationErrors = validateBondInput({
+    ...formData,
+    [key]: numericValue,
+  });
+  const fieldError = validationErrors.find(err => err.field === name);
+  if (fieldError) {
+    setErrors(prev => ({ ...prev, [name]: fieldError.message }));
+  }
+};
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -69,13 +70,13 @@ const BondInputForm: React.FC<BondInputFormProps> = ({ onSubmit, loading }) => {
     setTouched(Object.fromEntries(allFields.map(field => [field, true])));
 
     // Convert numeric fields before validating
-    const preparedData = {
-      ...formData,
-      faceValue: parseFloat(formData.faceValue as string),
-      couponRate: parseFloat(formData.couponRate as string),
-      marketPrice: parseFloat(formData.marketPrice as string),
-      yearsToMaturity: parseFloat(formData.yearsToMaturity as string),
-    };
+   const preparedData: BondInput = {
+  faceValue: parseFloat(String(formData.faceValue || 0)),
+  couponRate: parseFloat(String(formData.couponRate || 0)),
+  marketPrice: parseFloat(String(formData.marketPrice || 0)),
+  yearsToMaturity: parseFloat(String(formData.yearsToMaturity || 0)),
+  couponFrequency: formData.couponFrequency || 'semi-annual',
+};
 
     const validationErrors = validateBondInput(preparedData);
 
