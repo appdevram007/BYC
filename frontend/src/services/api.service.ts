@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { BondInput, BondCalculationResult } from '../types/bond.types';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://bycbackend.onrender.com/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
